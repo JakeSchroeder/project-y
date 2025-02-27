@@ -3,7 +3,8 @@
 #include <string.h>
 #include "renderer.h"
 
-#define INITIAL_CAPACITY 4
+#define INITIAL_CAPACITY \
+  1  // this right now is because we only have 1 vertex attribute (position)
 
 vertex_buffer_layout_t vertex_buffer_layout_create(void) {
   vertex_buffer_layout_t layout;

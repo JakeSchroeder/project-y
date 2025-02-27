@@ -168,7 +168,7 @@ int main(void) {
     vertex_buffer_t vb = vertex_buffer_create(positions, 4 * 2 * sizeof(float));
 
     vertex_buffer_layout_t layout = vertex_buffer_layout_create();
-    vertex_buffer_layout_push_float(&layout, 2);  // x, y position
+    vertex_buffer_layout_push_float(&layout, 2);  // x,y position
 
     vertex_array_add_buffer(&va, &vb, &layout);
 
