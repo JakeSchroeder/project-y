@@ -8,6 +8,7 @@
 #include "renderer.h"
 
 #include "index_buffer.h"
+#include "vertex_array.h"
 #include "vertex_buffer.h"
 
 struct ShaderProgramSource {
@@ -162,15 +163,14 @@ int main(void) {
 
     unsigned int indicies[] = {0, 1, 2, 2, 3, 0};
 
-    unsigned int vao;
-    GLCall(glGenVertexArrays(1, &vao));
-    GLCall(glBindVertexArray(vao));
+    vertex_array_t va = vertex_array_create();
 
     vertex_buffer_t vb = vertex_buffer_create(positions, 4 * 2 * sizeof(float));
 
-    GLCall(glEnableVertexAttribArray(0));
-    GLCall(
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0));
+    vertex_buffer_layout_t layout = vertex_buffer_layout_create();
+    vertex_buffer_layout_push_float(&layout, 2);  // x, y position
+
+    vertex_array_add_buffer(&va, &vb, &layout);
 
     index_buffer_t ib = index_buffer_create(indicies, 6);
 
@@ -184,10 +184,11 @@ int main(void) {
     ASSERT(location != -1);
     GLCall(glUniform4f(location, 1.0f, 0.5f, 0.3f, 1.0f));
 
-    GLCall(glBindVertexArray(0));
+    // unbinding
+    vertex_array_unbind();
     GLCall(glUseProgram(0));
-    GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+    vertex_buffer_unbind();
+    index_buffer_unbind();
 
     float r = 0.0f;
     float increment = 0.05f;
@@ -201,7 +202,7 @@ int main(void) {
       GLCall(glUseProgram(shader));
       GLCall(glUniform4f(location, r, 0.5f, 0.3f, 1.0f));
 
-      GLCall(glBindVertexArray(vao));
+      vertex_array_bind(&va);
       index_buffer_bind(&ib);
 
       GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL));
@@ -218,6 +219,10 @@ int main(void) {
     }
 
     GLCall(glDeleteProgram(shader));
+    vertex_array_destroy(&va);
+    vertex_buffer_destroy(&vb);
+    index_buffer_destroy(&ib);
+    vertex_buffer_layout_destroy(&layout);
   }
   glfwTerminate();
 
